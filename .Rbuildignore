@@ -1,6 +1,6 @@
 .es_keywords
-.git
-.gitignore
+[.]git
+[.]gitignore
 ChangeLog
 LICENSE
 README.org

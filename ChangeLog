@@ -1,0 +1,10 @@
+2023-06-16  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R: fix paths; remove instance of setwd()
+
+        * .Rbuildignore: fix regular expressions
+
+2023-06-15  Enrico Schumann  <es@enricoschumann.net>
+
+        * initial version: sketches of functions for
+        syncing directories and subdirectories with git

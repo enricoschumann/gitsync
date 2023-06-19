@@ -2,6 +2,7 @@
 
         * R/gitsync.R (pull_from_bundles): no longer use
         branches when cloning
+        (git_bundle_clone): normalize bundle path
 
         * NAMESPACE: export "pull_from_bundles"
 

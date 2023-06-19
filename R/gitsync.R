@@ -224,5 +224,5 @@ function(bundle, dir.name, parent.dir, ...) {
     on.exit(setwd(current.dir))
 
     setwd(parent.dir)
-    system2("git", c("clone", bundle, dir.name), ...)
+    system2("git", c("clone", shQuote(normalizePath(bundle)), dir.name), ...)
 }

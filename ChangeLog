@@ -1,5 +1,8 @@
 2023-06-19  Enrico Schumann  <es@enricoschumann.net>
 
+        * R/gitsync.R (pull_from_bundles): no longer use
+        branches when cloning
+
         * NAMESPACE: export "pull_from_bundles"
 
         * R/gitsync.R (pull_from_bundles): add argument

@@ -24,17 +24,12 @@ function(root.dir,
                 msg <- try(git_bundle_clone(file.path(bundle.dir, bundle),
                                             dir.name = basename(b.path),
                                             parent.dir = parent.dir,
-                                            branch = "main",
-                                            stdout = TRUE, stderr = TRUE), silent = TRUE)
-                if (inherits(msg, "try-error")) {
-                    msg <- try(git_bundle_clone(file.path(bundle.dir, bundle),
-                                                dir.name = basename(b.path),
-                                                parent.dir = parent.dir,
-                                                branch = "master",
-                                                stdout = TRUE, stderr = TRUE), silent = TRUE)
-                }
+                                            stdout = TRUE, stderr = TRUE),
+                           silent = TRUE)
                 cat(paste("    ", msg), sep = "\n")
                 message("\n")
+            } else {
+                message("\n   ===> dir does not exist -- [skip]")
             }
 
         }
@@ -74,9 +69,6 @@ function(root.dir,
          ...,
          max.char) {
 
-    pwd <- getwd()
-    on.exit(setwd(pwd))
-
     git <- git_paths(root.dir, max.char = 259)
     for (x in exclude.re) {
         git <- git[!grepl(x, git)]
@@ -99,7 +91,6 @@ function(root.dir,
                           dated.bundle = FALSE)
     }
 }
-
 
 git_paths <-
 function(path = ".",
@@ -161,7 +152,8 @@ git_bundle_create <-
 function(repos, output.filenames,
          output.dir,
          dated.bundle = TRUE,
-         overwrite = TRUE) {
+         overwrite = TRUE,
+         ref = c("--branches", "--tags")) {
 
     if (!dir.exists(output.dir)) {
         ans <- askYesNo("Create directory?")
@@ -184,9 +176,7 @@ function(repos, output.filenames,
         bundle <- paste0(
             strftime(Sys.time(), "%Y%m%d_%H%M%S__"),
             "temp.bundle")
-        system2("git",
-                c("bundle", "create", bundle,
-                  "--branches", "--tags"))
+        system2("git", c("bundle", "create", bundle, ref))
         message("")
 
         out.file <- output.filenames[i]
@@ -225,8 +215,7 @@ function(bundle, target, branch = "master", ...) {
 }
 
 git_bundle_clone <-
-function(bundle, dir.name, parent.dir,
-         branch = "master", ...) {
+function(bundle, dir.name, parent.dir, ...) {
 
     if (dir.exists(file.path(parent.dir, dir.name)))
         stop("directory ", sQuote(dir.name), " already exists. Maybe pull?")
@@ -235,5 +224,5 @@ function(bundle, dir.name, parent.dir,
     on.exit(setwd(current.dir))
 
     setwd(parent.dir)
-    system2("git", c("clone", "-b", branch, bundle, dir.name), ...)
+    system2("git", c("clone", bundle, dir.name), ...)
 }

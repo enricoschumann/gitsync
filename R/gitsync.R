@@ -2,6 +2,7 @@ pull_from_bundles <-
 function(root.dir,
          bundle.dir,
          path.separator = "FORWARDSLASH",
+         if.not.exists = "skip",
          ...) {
 
     bundles <- dir(bundle.dir)
@@ -13,33 +14,29 @@ function(root.dir,
                        b.path)
 
         message(b.path, appendLF = FALSE)
-
         if (!dir.exists(file.path(root.dir, b.path))) {
+            if (if.not.exists == "clone") {
 
-            message("\n   ===> dir does not exist -- [clone]")
-            tmp <- sub(paste0(".*", slash), "", bundle)
-            dir.name <- sub(r"(.bundle$)", "", tmp)
-            parent.dir <- file.path(root.dir, dirname(gsub(slash, "/", bundle)))
-            if (!dir.exists(parent.dir))
-                dir.create(parent.dir, recursive = TRUE)
-            msg <- try(git_bundle_clone(file.path("~",
-                                                  "Sharepoint",
-                                                  "backup_git", bundle),
-                                        dir.name = dir.name,
-                                        parent.dir = parent.dir,
-                                        branch = "master",
-                                        stdout = TRUE, stderr = TRUE), silent = TRUE)
-            if (inherits(msg, "try-error")) {
-                msg <- git_bundle_clone(file.path("~",
-                                                  "Sharepoint",
-                                                  "backup_git", bundle),
-                                        dir.name = dir.name,
-                                        parent.dir = parent.dir,
-                                        branch = "main",
-                                        stdout = TRUE, stderr = TRUE)
+                message("\n   ===> dir does not exist -- [clone]")
+                parent.dir <- file.path(root.dir, dirname(b.path))
+                if (!dir.exists(parent.dir))
+                    dir.create(parent.dir, recursive = TRUE)
+                msg <- try(git_bundle_clone(file.path(bundle.dir, bundle),
+                                            dir.name = basename(b.path),
+                                            parent.dir = parent.dir,
+                                            branch = "main",
+                                            stdout = TRUE, stderr = TRUE), silent = TRUE)
+                if (inherits(msg, "try-error")) {
+                    msg <- try(git_bundle_clone(file.path(bundle.dir, bundle),
+                                                dir.name = basename(b.path),
+                                                parent.dir = parent.dir,
+                                                branch = "master",
+                                                stdout = TRUE, stderr = TRUE), silent = TRUE)
+                }
+                cat(paste("    ", msg), sep = "\n")
+                message("\n")
             }
-            cat(paste("    ", msg), sep = "\n")
-            message("\n")
+
         }
         if (!dir.exists(file.path(root.dir, b.path, ".git"))) {
             message("\n   ===> dir exists, but no .git repository -- [skip]")

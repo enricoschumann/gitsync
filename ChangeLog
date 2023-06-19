@@ -1,3 +1,10 @@
+2023-06-19  Enrico Schumann  <es@enricoschumann.net>
+
+        * NAMESPACE: export "pull_from_bundles"
+
+        * R/gitsync.R (pull_from_bundles): add argument
+        'if.not.exists', with default 'skip'
+
 2023-06-16  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R: fix paths; remove instance of setwd()

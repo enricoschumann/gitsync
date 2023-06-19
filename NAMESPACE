@@ -1,5 +1,8 @@
-export("create_bundles",
-       "git_paths")
+export(
+    "create_bundles",
+    "git_paths",
+    "pull_from_bundles"
+   )
 
 importFrom("utils",
            "askYesNo")

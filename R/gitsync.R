@@ -31,8 +31,8 @@ function(root.dir,
             } else {
                 message("\n   ===> dir does not exist -- [skip]")
             }
-
         }
+
         if (!dir.exists(file.path(root.dir, b.path, ".git"))) {
             message("\n   ===> dir exists, but no .git repository -- [skip]")
             next
@@ -40,22 +40,30 @@ function(root.dir,
 
         d <- normalizePath(file.path(root.dir, b.path))
         bn <- names(git2r::branches(d))
-        if ("master" %in% bn) {
-            br.name <- "master"
-        } else
+        br.name <- NA
+        if (any(c("main", "origin/main") %in% bn)) {
             br.name <- "main"
-        msg <- git_bundle_pull(
-            shQuote(normalizePath(file.path(bundle.dir, bundle))),
-            target = file.path(root.dir, b.path),
-            branch = br.name,
-            stdout = TRUE,
-            stderr = TRUE)
-        if (length(msg) == 3 && msg[3] == "Already up to date.") {
-            message(crayon::green("   [OK]"), appendLF = TRUE)
+        } else if (any(c("master", "origin/master") %in% bn)) {
+            br.name <- "master"
+        } else if (length(bn) == 1L) {
+            br.name <- gsub(".*/([^/]+)$", "\\1", bn)
         } else {
-            message("")
-            cat(paste("    ", msg), sep = "\n")
-            message("\n\n")
+            warning("could not determine main branch name: no checkout done")
+        }
+        if (!is.na(br.name)) {
+            msg <- git_bundle_pull(
+                shQuote(normalizePath(file.path(bundle.dir, bundle))),
+                target = file.path(root.dir, b.path),
+                branch = br.name,
+                stdout = TRUE,
+                stderr = TRUE)
+            if (length(msg) == 3 && msg[3] == "Already up to date.") {
+                message(crayon::green("   [OK]"), appendLF = TRUE)
+            } else {
+                message("")
+                cat(paste("    ", msg), sep = "\n")
+                message("\n\n")
+            }
         }
     }
 }

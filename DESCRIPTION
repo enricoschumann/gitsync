@@ -2,11 +2,13 @@ Package: gitsync
 Type: Package
 Title: Sync Directories and Subdirectories with Git
 Version: 0.0.1
-Date: 2023-06-20
+Date: 2023-09-20
 Maintainer: Enrico Schumann <es@enricoschumann.net>
 Authors@R: person("Enrico", "Schumann",
                   role  = c("aut", "cre"),
                   email = "es@enricoschumann.net",
                   comment = c(ORCID = "0000-0001-7601-6576"))
-Description: Git tools.
+Description: Find and synchronize (nested) git
+             repositories.
+Suggests: git2r, crayon
 License: GPL-3

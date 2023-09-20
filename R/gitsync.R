@@ -103,7 +103,7 @@ function(root.dir,
 git_paths <-
 function(path = ".",
          sub.tilde = TRUE,
-         max.char = NA,...) {
+         max.char = NA, ...) {
 
     f <- dir(path = path,
              include.dirs = TRUE,

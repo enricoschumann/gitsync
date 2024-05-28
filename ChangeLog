@@ -1,3 +1,13 @@
+2024-05-28  Enrico Schumann  <es@enricoschumann.net>
+
+        * DESCRIPTION (Suggests): add 'tinytest'
+
+        * inst/tinytest/test_sync.R: add tests
+
+        * R/gitsync.R (pull_from_bundles): fix messages;
+        add arguments 'bundle.pattern' and 'ignore.case'
+        for selecting bundles
+
 2023-06-20  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (pull_from_bundles): try to get

@@ -3,9 +3,15 @@ function(root.dir,
          bundle.dir,
          path.separator = "FORWARDSLASH",
          if.not.exists = "skip",
+         bundle.pattern = NULL,
+         ignore.case = FALSE,
          ...) {
 
-    bundles <- dir(bundle.dir)
+    bundles <- dir(bundle.dir, include.dirs = FALSE,
+                   pattern = bundle.pattern,
+                   ignore.case = ignore.case)
+    isdir <- file.info(file.path(bundle.dir, bundles))$isdir
+    bundles <- bundles[!isdir]
     for (bundle in bundles) {
 
         b.path <- sub("[.]bundle$", "", bundle)
@@ -13,11 +19,11 @@ function(root.dir,
                        .Platform$file.sep,
                        b.path)
 
-        message(b.path, appendLF = FALSE)
+        message(b.path, " ... ", appendLF = FALSE)
         if (!dir.exists(file.path(root.dir, b.path))) {
             if (if.not.exists == "clone") {
 
-                message("\n   ===> dir does not exist -- [clone]")
+                message("dir does not exist -- [clone]")
                 parent.dir <- file.path(root.dir, dirname(b.path))
                 if (!dir.exists(parent.dir))
                     dir.create(parent.dir, recursive = TRUE)
@@ -29,11 +35,13 @@ function(root.dir,
                 cat(paste("    ", msg), sep = "\n")
                 message("\n")
             } else {
-                message("\n   ===> dir does not exist -- [skip]")
+                message("dir does not exist -- [skip]")
+                next
             }
         }
 
-        if (!dir.exists(file.path(root.dir, b.path, ".git"))) {
+        if ( dir.exists(file.path(root.dir, b.path)) &&
+            !dir.exists(file.path(root.dir, b.path, ".git"))) {
             message("\n   ===> dir exists, but no .git repository -- [skip]")
             next
         }

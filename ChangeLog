@@ -1,3 +1,8 @@
+2024-06-03  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (create_bundles): add argument
+        "include.only.re" and remove unused "dir.list"
+
 2024-05-28  Enrico Schumann  <es@enricoschumann.net>
 
         * DESCRIPTION (Suggests): add 'tinytest'

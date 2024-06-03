@@ -80,15 +80,18 @@ create_bundles <-
 function(root.dir,
          bundle.dir,
          exclude.re = NULL,
-         dir.list = NULL,
+         include.only.re = NULL,
          path.separator = "FORWARDSLASH",
          ...,
          max.char) {
 
     git <- git_paths(root.dir, max.char = 259)
-    for (x in exclude.re) {
-        git <- git[!grepl(x, git)]
+    for (x in include.only.re) {
+        git <- git[grepl(x, git)]
     }
+    if (is.null(include.only.re))
+        for (x in exclude.re)
+            git <- git[!grepl(x, git)]
 
     for (i in seq_along(git)) {
         h <- git2r::repository_head(file.path(root.dir, git[i]))

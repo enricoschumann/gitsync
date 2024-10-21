@@ -83,9 +83,9 @@ function(root.dir,
          include.only.re = NULL,
          path.separator = "FORWARDSLASH",
          ...,
-         max.char) {
+         max.char = 259) {
 
-    git <- git_paths(root.dir, max.char = 259)
+    git <- git_paths(root.dir, max.char = max.char)
     for (x in include.only.re) {
         git <- git[grepl(x, git)]
     }
@@ -116,13 +116,11 @@ function(path = ".",
          sub.tilde = TRUE,
          max.char = NA, ...) {
 
-    f <- dir(path = path,
-             include.dirs = TRUE,
-             recursive = TRUE,
-             all.files = TRUE)
+    f <- list.files(path = path, pattern = "^[.]git$",
+                    include.dirs = TRUE,
+                    recursive = TRUE, all.files = TRUE)
     if (is.finite(max.char))
         f <- f[nchar(f) <= max.char]
-    f <- f[basename(f) == ".git"]
     f <- f[file.info(file.path(path, f))$isdir]
     f <- sort(unique(dirname(f)))
     if (sub.tilde)

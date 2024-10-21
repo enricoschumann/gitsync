@@ -1,3 +1,7 @@
+2024-10-21  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (create_bundles): pass on 'max.char'
+
 2024-06-03  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (create_bundles): add argument

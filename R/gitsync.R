@@ -83,7 +83,7 @@ function(root.dir,
          include.only.re = NULL,
          path.separator = "FORWARDSLASH",
          ...,
-         max.char = 259) {
+         max.char = NA) {
 
     git <- git_paths(root.dir, max.char = max.char)
     for (x in include.only.re) {
@@ -114,7 +114,10 @@ function(root.dir,
 git_paths <-
 function(path = ".",
          sub.tilde = TRUE,
-         max.char = NA, ...) {
+         max.char = NA,
+         git.path = NULL,
+         cache.dir = NULL,
+         ...) {
 
     f <- list.files(path = path, pattern = "^[.]git$",
                     include.dirs = TRUE,

@@ -195,7 +195,7 @@ function(repos, output.filenames,
     on.exit(setwd(current.dir))
     for (i in seq_along(repos)) {
         message(repos[i], "\n",
-                " =>")
+                " =>", appendLF = FALSE)
         if (!dir.exists(repos[i]))
             message("    repository does not exist => skip")
         else

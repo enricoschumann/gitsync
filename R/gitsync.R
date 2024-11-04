@@ -87,7 +87,7 @@ function(root.dir,
          ...,
          max.char = NA) {
 
-    git <- git_paths(root.dir,
+    git <- git_paths(root.dir = root.dir,
                      max.char = max.char,
                      git.paths = git.paths)
 
@@ -132,9 +132,12 @@ function(root.dir = ".",
     } else
         f <- git.paths
     if (is.finite(max.char))
-        f <- f[nchar(f) <= max.char]
+        f <- f[nchar(file.path(root.dir, f)) <= max.char]
     f <- f[file.info(file.path(root.dir, f))$isdir]
-    f <- sort(unique(dirname(f)))
+    if (is.null(git.paths)) {
+        f <- dirname(f)
+    }
+    f <- sort(unique(f))
     if (sub.tilde)
         f <- sub(normalizePath(path.expand("~"), winslash = "/"),
                  "~", f, fixed = TRUE)

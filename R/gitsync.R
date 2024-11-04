@@ -74,24 +74,27 @@ function(root.dir,
             }
         }
     }
+    invisible(bundles)
 }
 
 create_bundles <-
 function(root.dir,
          bundle.dir,
-         exclude.re = NULL,
-         include.only.re = NULL,
+         exclude.pattern = NULL,
+         include.only.pattern = NULL,
          path.separator = "FORWARDSLASH",
+         git.paths = NULL,
          ...,
          max.char = NA) {
 
-    git <- git_paths(root.dir, max.char = max.char)
-    for (x in include.only.re) {
-        git <- git[grepl(x, git)]
-    }
-    if (is.null(include.only.re))
-        for (x in exclude.re)
-            git <- git[!grepl(x, git)]
+    git <- git_paths(root.dir,
+                     max.char = max.char,
+                     git.paths = git.paths)
+
+    for (x in include.only.pattern)
+        git <- git[ grepl(x, git)]
+    for (x in exclude.pattern)
+        git <- git[!grepl(x, git)]
 
     for (i in seq_along(git)) {
         h <- git2r::repository_head(file.path(root.dir, git[i]))
@@ -109,22 +112,28 @@ function(root.dir,
                           output.dir = bundle.dir,
                           dated.bundle = FALSE)
     }
+    invisible(git)
 }
 
 git_paths <-
-function(path = ".",
+function(root.dir = ".",
          sub.tilde = TRUE,
          max.char = NA,
-         git.path = NULL,
+         git.paths = NULL,
          cache.dir = NULL,
          ...) {
 
-    f <- list.files(path = path, pattern = "^[.]git$",
-                    include.dirs = TRUE,
-                    recursive = TRUE, all.files = TRUE)
+    if (!is.null(cache.dir))
+        message("cache.dir not yet supported")
+    if (is.null(git.paths)) {
+        f <- list.files(path = root.dir, pattern = "^[.]git$",
+                        include.dirs = TRUE,
+                        recursive = TRUE, all.files = TRUE)
+    } else
+        f <- git.paths
     if (is.finite(max.char))
         f <- f[nchar(f) <= max.char]
-    f <- f[file.info(file.path(path, f))$isdir]
+    f <- f[file.info(file.path(root.dir, f))$isdir]
     f <- sort(unique(dirname(f)))
     if (sub.tilde)
         f <- sub(normalizePath(path.expand("~"), winslash = "/"),

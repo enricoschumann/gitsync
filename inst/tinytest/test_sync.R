@@ -24,8 +24,8 @@ system2("git", c("commit", "-m", "'Initial commit'"))
 gitsync::git_paths(file.path(root, "Machine1"))
 gitsync::create_bundles(file.path(root, "Machine1"),
                         bundle.dir = root)
-pull_from_bundles(file.path(root, "Machine2"),
-                  bundle.dir = root)
-pull_from_bundles(file.path(root, "Machine2"),
-                  bundle.dir = root,
-                  if.not.exists = "clone")
+gitsync::pull_from_bundles(file.path(root, "Machine2"),
+                           bundle.dir = root)
+gitsync::pull_from_bundles(file.path(root, "Machine2"),
+                           bundle.dir = root,
+                           if.not.exists = "clone")

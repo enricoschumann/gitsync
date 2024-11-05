@@ -1,3 +1,8 @@
+2024-11-05  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_bundle_clone): add default names
+        for branches when cloning
+
 2024-10-21  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (create_bundles): pass on 'max.char'

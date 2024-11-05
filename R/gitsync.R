@@ -247,7 +247,8 @@ function(bundle, target, branch = "master", ...) {
 }
 
 git_bundle_clone <-
-function(bundle, dir.name, parent.dir, ...) {
+function(bundle, dir.name, parent.dir, ...,
+         branch.name = c("main", "master")) {
 
     if (dir.exists(file.path(parent.dir, dir.name)))
         stop("directory ", sQuote(dir.name), " already exists. Maybe pull?")
@@ -255,6 +256,25 @@ function(bundle, dir.name, parent.dir, ...) {
     current.dir <- getwd()
     on.exit(setwd(current.dir))
 
+    refs <- system2("git", c("bundle","list-heads",
+                             shQuote(normalizePath(bundle))),
+                    stderr = TRUE, stdout = TRUE)
+    refs <- refs[grepl("refs/heads", refs)]
+    refs <- sub("^[0-9a-f]+ refs/heads/", "", refs)
+
+    b <- branch.name[1L]
+
+    if (length(refs)) {
+        for (bn in branch.name) {
+            if (bn %in% refs) {
+                b <- bn
+                break
+            }
+        }
+    }
+
     setwd(parent.dir)
-    system2("git", c("clone", shQuote(normalizePath(bundle)), dir.name), ...)
+    system2("git",
+            c("clone",
+              shQuote(normalizePath(bundle)), dir.name, "-b", b), ...)
 }

@@ -84,12 +84,14 @@ function(root.dir,
          include.only.pattern = NULL,
          path.separator = "FORWARDSLASH",
          git.paths = NULL,
+         cache.dir = NULL,
          ...,
          max.char = NA) {
 
     git <- git_paths(root.dir = root.dir,
                      max.char = max.char,
-                     git.paths = git.paths)
+                     git.paths = git.paths,
+                     cache.dir = cache.dir)
 
     for (x in include.only.pattern)
         git <- git[ grepl(x, git)]
@@ -123,20 +125,58 @@ function(root.dir = ".",
          cache.dir = NULL,
          ...) {
 
-    if (!is.null(cache.dir))
-        message("cache.dir not yet supported")
+    write.cache <- FALSE
+    if (!is.null(cache.dir) && is.null(git.paths)) {
+        if (!dir.exists(cache.dir)) {
+            dcreated <- dir.create(cache.dir, recursive = TRUE)
+            if (dcreated) {
+                message("created directory ", cache.dir)
+                write.cache <- TRUE
+            } else {
+                message("could not create cache directory ", cache.dir)
+            }
+        } else {
+            ## read file
+            cached <- dir(path = cache.dir,
+                          pattern = paste0("^[0-9_T]+.*__git_paths__",
+                                           gsub("/", "_", root.dir)))
+            if (length(cached)) {
+                max.age <- 5
+                cached <- max(cached)
+                if (as.numeric(Sys.Date() - as.Date(cached), unit = "days") >= max.age) {
+                    write.cash <- TRUE
+                } else {
+                    git.paths <- readLines(file.path(cache.dir, cached))
+                    if (!length(git.paths)) {
+                        message("no paths in cache [run without or clear cache if that seems wrong]")
+                        return(character())
+                    }
+                }
+
+            } else {
+                write.cache <- TRUE
+            }
+        }
+    }
     if (is.null(git.paths)) {
         f <- list.files(path = root.dir, pattern = "^[.]git$",
                         include.dirs = TRUE,
                         recursive = TRUE, all.files = TRUE)
+        f <- dirname(f)
+        if (write.cache) {
+            fn <- paste0(format(Sys.time(), "%Y-%m-%dT%H%M%S"),
+                         "__git_paths__",
+                         gsub("/", "_", root.dir))
+            writeLines(f, file.path(cache.dir, fn))
+        }
     } else
         f <- git.paths
     if (is.finite(max.char))
         f <- f[nchar(file.path(root.dir, f)) <= max.char]
     f <- f[file.info(file.path(root.dir, f))$isdir]
-    if (is.null(git.paths)) {
-        f <- dirname(f)
-    }
+    ## if (is.null(git.paths)) {
+    ##     f <- dirname(f)
+    ## }
     f <- sort(unique(f))
     if (sub.tilde)
         f <- sub(normalizePath(path.expand("~"), winslash = "/"),

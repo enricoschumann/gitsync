@@ -2,7 +2,7 @@ Package: gitsync
 Type: Package
 Title: Sync Directories and Subdirectories with Git
 Version: 0.0.1
-Date: 2024-11-05
+Date: 2024-11-19
 Maintainer: Enrico Schumann <es@enricoschumann.net>
 Authors@R: person("Enrico", "Schumann",
                   role  = c("aut", "cre"),

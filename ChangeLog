@@ -1,3 +1,9 @@
+2024-11-19  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_paths): optionally cache list of
+        git paths, since finding them is time-consuming for
+        large directories
+
 2024-11-05  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (git_bundle_clone): add default names

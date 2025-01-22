@@ -144,7 +144,7 @@ function(root.dir = ".",
                 max.age <- 5
                 cached <- max(cached)
                 if (as.numeric(Sys.Date() - as.Date(cached), unit = "days") >= max.age) {
-                    write.cash <- TRUE
+                    write.cache <- TRUE
                 } else {
                     git.paths <- readLines(file.path(cache.dir, cached))
                     if (!length(git.paths)) {

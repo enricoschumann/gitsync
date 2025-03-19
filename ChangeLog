@@ -1,3 +1,9 @@
+2025-03-19  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_bundle_create): show name of
+        dir to be created when asking for user
+        confirmation
+
 2024-11-19  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (git_paths): optionally cache list of

@@ -228,7 +228,7 @@ function(repos, output.filenames,
          ref = c("--branches", "--tags")) {
 
     if (!dir.exists(output.dir)) {
-        ans <- askYesNo("Create directory?")
+        ans <- askYesNo(paste0("Create directory", output.dir, "?"))
         if (is.na(ans) || !ans)
             return(invisible(NULL))
         else

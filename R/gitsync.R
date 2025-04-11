@@ -185,39 +185,41 @@ function(root.dir = ".",
     f
 }
 
-fetch_git_info <-
-function(path, ...) {
+
+
+git_info <-
+function(path, ...,
+         branch.type = "local") {
 
     paths <- path
-    clean <- rep(NA, length(paths))
-    remotes <- rep(NA_character_, length(paths))
-    remote_urls <- rep(NA_character_, length(paths))
-    branches <- rep(NA_character_, length(paths))
+    ## clean <- rep(NA, length(paths))
+    ## remotes <- rep(NA_character_, length(paths))
+    ## remote_urls <- rep(NA_character_, length(paths))
+    ## branches <- rep(NA_character_, length(paths))
+
+    ans <- vector("list", length(paths))
+    names(ans) <- paths
+
+
 
     for (path in paths) {
         p <- path == paths
-        br <- sort(names(git2r::branches(path, "local")))
-
-        branches[p] <- paste(br, collapse = ";")
-
-
+        br <- sort(names(git2r::branches(path, branch.type)))
+        ans[[path]][["branches"]] <- br
 
         st <- git2r::status(path)
-        clean[p] <- !(length(st$staged) || length(st$unstaged) || length(st$untracked))
+        ans[[path]][["status"]] <- st
+
+        clean <- !(length(st$staged) || length(st$unstaged) || length(st$untracked))
+        ans[[path]][["is.clean"]] <- clean
 
         rem <- git2r::remotes(path)
-        remotes[p] <- paste(rem, collapse = ";")
-        remote_urls[p] <- paste(git2r::remote_url(path, remote = rem), collapse = ";")
+        urls <- git2r::remote_url(path, remote = rem)
+        names(urls) <- rem
+        ans[[path]][["remotes"]] <- urls
     }
-    data.frame(path = paths,
-               machine = Sys.info()[["nodename"]],
-               ## user = Sys.info()["user"],
-               clean = clean,
-               remotes = remotes,
-               remote_urls = remote_urls,
-               branches = branches,
-               check.names = FALSE,
-               stringsAsFactors = FALSE)
+
+    ans
 }
 
 git_bundle_create <-

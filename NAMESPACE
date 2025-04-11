@@ -1,6 +1,7 @@
 export(
     "create_bundles",
     "git_paths",
+    "git_info",
     "pull_from_bundles"
    )
 

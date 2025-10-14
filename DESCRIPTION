@@ -1,8 +1,8 @@
 Package: gitsync
 Type: Package
 Title: Sync Directories and Subdirectories with Git
-Version: 0.0.1
-Date: 2025-04-11
+Version: 0.1.0
+Date: 2025-10-14
 Maintainer: Enrico Schumann <es@enricoschumann.net>
 Authors@R: person("Enrico", "Schumann",
                   role  = c("aut", "cre"),
@@ -11,5 +11,6 @@ Authors@R: person("Enrico", "Schumann",
 Description: Find git repositories within a directory structure
     and clone/synchronize those repositories to another directory
     or machine.
-Suggests: git2r, crayon, tinytest
+Suggests: git2r, cli, tinytest
 License: GPL-3
+URL: https://git.sr.ht/~enricoschumann/gitsync

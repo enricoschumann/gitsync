@@ -19,54 +19,46 @@ function(root.dir,
                        .Platform$file.sep,
                        b.path)
 
-        message(b.path, " ... ", appendLF = FALSE)
+        message(b.path, " ...", appendLF = FALSE)
         if (!dir.exists(file.path(root.dir, b.path))) {
             if (if.not.exists == "clone") {
 
                 message("dir does not exist -- [clone]")
                 parent.dir <- file.path(root.dir, dirname(b.path))
                 if (!dir.exists(parent.dir))
-                    dir.create(parent.dir, recursive = TRUE)
-                msg <- try(git_bundle_clone(file.path(bundle.dir, bundle),
-                                            dir.name = basename(b.path),
-                                            parent.dir = parent.dir,
-                                            stdout = TRUE, stderr = TRUE),
-                           silent = TRUE)
-                cat(paste("    ", msg), sep = "\n")
-                message("\n")
+                    dir.create(parent.dir,
+                               recursive = TRUE,
+                               showWarnings = FALSE)
+                msg <- try(git_bundle_clone(
+                    file.path(bundle.dir, bundle),
+                    dir.name = basename(b.path),
+                    parent.dir = parent.dir,
+                    stdout = TRUE,
+                    stderr = TRUE),
+                    silent = TRUE)
             } else {
                 message("dir does not exist -- [skip]")
                 next
             }
-        }
 
-        if ( dir.exists(file.path(root.dir, b.path)) &&
-            !dir.exists(file.path(root.dir, b.path, ".git"))) {
-            message("\n   ===> dir exists, but no .git repository -- [skip]")
-            next
-        }
-
-        d <- normalizePath(file.path(root.dir, b.path))
-        bn <- names(git2r::branches(d))
-        br.name <- NA
-        if (any(c("main", "origin/main") %in% bn)) {
-            br.name <- "main"
-        } else if (any(c("master", "origin/master") %in% bn)) {
-            br.name <- "master"
-        } else if (length(bn) == 1L) {
-            br.name <- gsub(".*/([^/]+)$", "\\1", bn)
         } else {
-            warning("could not determine main branch name: no checkout done")
-        }
-        if (!is.na(br.name)) {
+
+            if (!dir.exists(file.path(root.dir, b.path, ".git"))) {
+                message(paste0("\n   ===> dir exists, ",
+                               "but no .git repository -- [skip]"))
+                next
+            }
+
+            d <- normalizePath(file.path(root.dir, b.path))
+
             msg <- git_bundle_pull(
                 shQuote(normalizePath(file.path(bundle.dir, bundle))),
                 target = file.path(root.dir, b.path),
-                branch = br.name,
+                ## branch = br.name,
                 stdout = TRUE,
                 stderr = TRUE)
             if (length(msg) == 3 && msg[3] == "Already up to date.") {
-                message(crayon::green("   [OK]"), appendLF = TRUE)
+                message(cli::col_green(" [OK]"), appendLF = TRUE)
             } else {
                 message("")
                 cat(paste("    ", msg), sep = "\n")
@@ -74,6 +66,7 @@ function(root.dir,
             }
         }
     }
+
     invisible(bundles)
 }
 
@@ -191,6 +184,7 @@ git_info <-
 function(path, ...,
          branch.type = "local") {
 
+    stopifnot(requireNamespace("git2r"))
     paths <- path
     ## clean <- rep(NA, length(paths))
     ## remotes <- rep(NA_character_, length(paths))
@@ -276,7 +270,7 @@ function(repos, output.filenames,
 }
 
 git_bundle_pull <-
-function(bundle, target, branch = "master", ...) {
+function(bundle, target, branch = NULL, verify = TRUE, ...) {
 
     if (!dir.exists(target))
         stop("'target' does not exist. Maybe clone?")
@@ -285,12 +279,42 @@ function(bundle, target, branch = "master", ...) {
     on.exit(setwd(current.dir))
 
     setwd(target)
-    system2("git", c("pull", bundle, branch), ...)
+    if (verify)
+        v <- system2("git", c("bundle", "verify", bundle), ...)
+
+    heads <- system2("git", c("bundle", "list-heads", bundle), ...)
+    heads <- heads[grepl("refs/heads", heads)]
+
+    heads <- strsplit(heads, " refs/heads/", fixed = TRUE)
+    heads <- unlist(lapply(heads, `[[`, 2))
+
+    current <- system2("git", "status",
+                       stdout = TRUE, stderr = TRUE)
+    current <- sub("On branch ", "", current[[1]], fixed = TRUE)
+
+    if (current %in% heads) {
+        system2("git", c("pull", bundle, current))
+        heads <- setdiff(heads, current)
+    }
+
+    for (branch in heads) {
+        res <- system2("git", c("checkout", branch),
+                       stdout = TRUE, stderr = TRUE)
+        if (grepl("error: .* did not match any file", res[1L])) {
+            res <- system2("git", c("checkout", "-b", branch),
+                           stdout = TRUE, stderr = TRUE)
+        }
+
+        res <- system2("git", c("pull", bundle, branch), ...)
+    }
+
+    system2("git", c("checkout", current))
+    invisible(NULL)
 }
 
 git_bundle_clone <-
 function(bundle, dir.name, parent.dir, ...,
-         branch.name = c("main", "master")) {
+         branch.name = c("main")) {
 
     if (dir.exists(file.path(parent.dir, dir.name)))
         stop("directory ", sQuote(dir.name), " already exists. Maybe pull?")
@@ -298,25 +322,23 @@ function(bundle, dir.name, parent.dir, ...,
     current.dir <- getwd()
     on.exit(setwd(current.dir))
 
-    refs <- system2("git", c("bundle","list-heads",
+    refs <- system2("git", c("bundle", "list-heads",
                              shQuote(normalizePath(bundle))),
                     stderr = TRUE, stdout = TRUE)
     refs <- refs[grepl("refs/heads", refs)]
     refs <- sub("^[0-9a-f]+ refs/heads/", "", refs)
 
     b <- branch.name[1L]
-
-    if (length(refs)) {
-        for (bn in branch.name) {
-            if (bn %in% refs) {
-                b <- bn
-                break
-            }
-        }
+    if (is.null(b) || !b %in% refs) {
+        b <- refs[1L]
     }
 
     setwd(parent.dir)
+    ## system2("git",
+    ##         c("clone",
+    ##           shQuote(normalizePath(bundle)), dir.name, "-b", b), ...)
     system2("git",
             c("clone",
-              shQuote(normalizePath(bundle)), dir.name, "-b", b), ...)
+              shQuote(normalizePath(bundle)), dir.name))
+    message(cli::col_green("[done]"))
 }

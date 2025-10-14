@@ -1,3 +1,15 @@
+2025-10-14  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_bundle_pull): check all heads in
+        bundle, and try checkout and pull each; if a head
+        does not exists in the local repository, create a
+        new branch of that name
+        (git_bundle_clone): clone the bundle without any
+        branch specified
+
+        * inst/tinytest/test_sync__branches.R: add sketch of
+        tests
+
 2025-04-10  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (git_info): add function, which

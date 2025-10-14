@@ -16,6 +16,7 @@ create_bundles(root.dir, bundle.dir,
                include.only.pattern = NULL,
                path.separator = "FORWARDSLASH",
                git.paths = NULL,
+               cache.dir = NULL,
                ...,
                max.char = NA)
 
@@ -36,10 +37,8 @@ git_paths(root.dir = ".", sub.tilde = TRUE,
     string: a path
   }
   \item{bundle.dir}{%
-
     string: the directory path where the bundles are to be
     stored
-
   }
   \item{exclude.pattern}{
     character: regular expression; can be of length > 1
@@ -75,7 +74,7 @@ git_paths(root.dir = ".", sub.tilde = TRUE,
     \code{max.char}
   }
   \item{cache.dir}{%
-    a path. Not yet implemented.
+    string: a path
   }
   \item{\dots}{
     other arguments

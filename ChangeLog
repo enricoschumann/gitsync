@@ -1,3 +1,8 @@
+2025-10-24  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_paths): replace `\`, `/` and ` `
+        in repo-list names by `_`
+
 2025-10-14  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (git_bundle_pull): check all heads in

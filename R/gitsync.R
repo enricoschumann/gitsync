@@ -119,6 +119,7 @@ function(root.dir = ".",
          ...,
          unix.find = TRUE) {
 
+    root.dir <- normalizePath(root.dir, winslash = "/")
     write.cache <- FALSE
     if (!is.null(cache.dir) && is.null(git.paths)) {
         if (!dir.exists(cache.dir)) {
@@ -133,7 +134,7 @@ function(root.dir = ".",
             ## read file
             cached <- dir(path = cache.dir,
                           pattern = paste0("^[0-9_T]+.*__git_paths__",
-                                           gsub("/", "_", root.dir)))
+                                           gsub("[/ ]", "_", root.dir)))
             if (length(cached)) {
                 max.age <- 5
                 cached <- max(cached)
@@ -171,7 +172,7 @@ function(root.dir = ".",
         if (write.cache) {
             fn <- paste0(format(Sys.time(), "%Y-%m-%dT%H%M%S"),
                          "__git_paths__",
-                         gsub("/", "_", root.dir))
+                         gsub("[/ ]", "_", root.dir))
             writeLines(f, file.path(cache.dir, fn))
         }
     } else

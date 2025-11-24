@@ -1,4 +1,4 @@
-v0.1.0  (2025-10-14; not yet released))
+v0.1.0  (2025-10-24; not yet released))
 
   o Initial version: a simple tool for synchronizing nested
     git repositories between different root directories.

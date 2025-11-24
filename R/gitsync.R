@@ -116,7 +116,8 @@ function(root.dir = ".",
          max.char = NA,
          git.paths = NULL,
          cache.dir = NULL,
-         ...) {
+         ...,
+         unix.find = TRUE) {
 
     write.cache <- FALSE
     if (!is.null(cache.dir) && is.null(git.paths)) {
@@ -152,10 +153,21 @@ function(root.dir = ".",
         }
     }
     if (is.null(git.paths)) {
-        f <- list.files(path = root.dir, pattern = "^[.]git$",
-                        include.dirs = TRUE,
-                        recursive = TRUE, all.files = TRUE)
+        if (unix.find && .Platform$OS.type == "unix") {
+            f <- system2("find",
+                         c(shQuote(path.expand(root.dir)),
+                           "-name", ".git",
+                           "-type", "d"),
+                         stdout = TRUE)
+            f <- sub(paste0("^", path.expand(root.dir), "/"), "", f)
+            f <- sort(f)
+        } else {
+            f <- list.files(path = root.dir, pattern = "^[.]git$",
+                            include.dirs = TRUE,
+                            recursive = TRUE, all.files = TRUE)
+        }
         f <- dirname(f)
+
         if (write.cache) {
             fn <- paste0(format(Sys.time(), "%Y-%m-%dT%H%M%S"),
                          "__git_paths__",
@@ -204,7 +216,9 @@ function(path, ...,
         st <- git2r::status(path)
         ans[[path]][["status"]] <- st
 
-        clean <- !(length(st$staged) || length(st$unstaged) || length(st$untracked))
+        clean <- !(length(st$staged)     ||
+                   length(st$unstaged)   ||
+                   length(st$untracked))
         ans[[path]][["is.clean"]] <- clean
 
         rem <- git2r::remotes(path)
@@ -224,7 +238,7 @@ function(repos, output.filenames,
          ref = c("--branches", "--tags")) {
 
     if (!dir.exists(output.dir)) {
-        ans <- askYesNo(paste0("Create directory", output.dir, "?"))
+        ans <- askYesNo(paste0("Create directory ", output.dir, "?"))
         if (is.na(ans) || !ans)
             return(invisible(NULL))
         else

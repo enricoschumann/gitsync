@@ -1,3 +1,9 @@
+2025-11-24  Enrico Schumann  <es@enricoschumann.net>
+
+        * R/gitsync.R (git_paths): add option 'unix.find';
+        if TRUE and if on a Unix OS, use 'find', which can
+        be faster than 'list.files'
+
 2025-10-14  Enrico Schumann  <es@enricoschumann.net>
 
         * R/gitsync.R (git_bundle_pull): check all heads in
